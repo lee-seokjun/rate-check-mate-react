@@ -6,19 +6,20 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
-import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import {Condition} from "./Admin";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AddIcon from '@mui/icons-material/Add';
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from '@material-ui/core/TextField';
 
-interface Data {
+export interface Data {
   rateConditionKey: string;
   targetType: string;
   loanLocationType: string;
@@ -32,33 +33,6 @@ interface Data {
   top_priority: number;
 }
 
-function createData(
-    rateConditionKey: string,
-    targetType: string,
-    loanLocationType: string,
-    loanPeriodMin: number,
-    loanPeriodMax: number,
-    loanSizeMin: number,
-    loanSizeMax: number,
-    standard: number,
-    preferred: number,
-    priority: number,
-    top_priority: number,
-): Data {
-  return {
-    rateConditionKey,
-    targetType,
-    loanLocationType,
-    loanPeriodMin,
-    loanPeriodMax,
-    loanSizeMin,
-    loanSizeMax,
-    standard,
-    preferred,
-    priority,
-    top_priority
-  };
-}
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -99,8 +73,8 @@ interface HeadCell {
 }
 
 const headCells: HeadCell[] = [
-  {id: 'targetType', numeric: false, disablePadding: true, label: '종목 '},
-  {id: 'loanLocationType', numeric: true, disablePadding: false, label: '장소'},
+  {id: 'targetType', numeric: false, disablePadding: false, label: '종목 '},
+  {id: 'loanLocationType', numeric: false, disablePadding: false, label: '장소'},
   {id: 'loanPeriodMin', numeric: true, disablePadding: false, label: '기간 최소'},
   {id: 'loanPeriodMax', numeric: true, disablePadding: false, label: '기간 최대'},
   {id: 'loanSizeMin', numeric: true, disablePadding: false, label: '금액 최소'},
@@ -154,7 +128,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                   {orderBy === headCell.id ? (
                       <span className={classes.visuallyHidden}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </span>
+                      </span>
                   ) : null}
                 </TableSortLabel>
               </TableCell>
@@ -187,35 +161,43 @@ const useToolbarStyles = makeStyles((theme: Theme) =>
 );
 
 interface EnhancedTableToolbarProps {
-  numSelected: number;
+  numSelected: Data[];
+  setData: (value: Data[]) => void;
+  register: (value: Data[]) => void;
+  remove: (value: string) => void;
+  data: Data[];
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   const classes = useToolbarStyles();
-  const {numSelected} = props;
+  const {numSelected, data, setData} = props;
   const deleteButton = () => {
-    console.log('delete')
+    numSelected.forEach(numSelected => props.remove(numSelected.rateConditionKey));
+  }
+  const copyButton = () => {
+    props.register(numSelected);
   }
   return (
       <Toolbar
           className={clsx(classes.root, {
-            [classes.highlight]: numSelected > 0,
+            [classes.highlight]: numSelected.length > 0,
           })}
       >
-        {numSelected > 0 ? (
-            <Tooltip title="Delete">
+        {numSelected.length > 0 && (
+            <div>
+              <Tooltip title="Delete">
 
-              <IconButton aria-label="delete" onClick={deleteButton}>
+                <IconButton aria-label="delete" onClick={deleteButton}>
+                  <DeleteIcon/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="copy">
 
-                <DeleteIcon/>
-              </IconButton>
-            </Tooltip>
-        ) : (
-            <Tooltip title="Filter list">
-              <IconButton aria-label="filter list">
-                <FilterListIcon/>
-              </IconButton>
-            </Tooltip>
+                <IconButton aria-label="copy" onClick={copyButton}>
+                  <ContentCopyIcon/>
+                </IconButton>
+              </Tooltip>
+            </div>
         )}
       </Toolbar>
   );
@@ -246,45 +228,39 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     }),
 );
+
 interface EnhancedTableProp {
-  conditions: Condition[];
+  data: Data[];
+  setData: (value: Data[]) => void;
+  register: (value: Data[]) => void;
+  remove: (value: string) => void;
+  companyId: string;
 }
-interface GradeType{
-  STANDARD : number,
-  PREFERRED: number,
-  PRIORITY: number,
-  TOP_PRIORITY: number
-}
+
 export default function EnhancedTable(props: EnhancedTableProp) {
   const classes = useStyles();
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('standard');
-  const [selected, setSelected] = React.useState<string[]>([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const arr:Data[] = [];
-  props.conditions.forEach(con => {
-    const grade :GradeType = {STANDARD : 0, PREFERRED: 0, PRIORITY:0,TOP_PRIORITY: 0};
-    // @ts-ignore
-    con.rates.forEach(rate => grade[rate.grade] = rate.rate)
-    arr.push(
-        createData(
-            con.rateConditionKey, con.targetType, con.loanLocationType,
-            con.minPeriod, con.maxPeriod, con.minSize, con.maxSize,
-            grade.STANDARD,
-            grade.PREFERRED,
-            grade.PRIORITY,
-            grade.TOP_PRIORITY))
-  })
+  const [selected, setSelected] = React.useState<Data[]>([]);
+  const [now, setNow] = React.useState(0);
+  const [nowFocus, setNowFocus] = React.useState('');
+  const data = props.data;
+
+  if (selected.length > 0) {
+    if (data.findIndex(d => d.rateConditionKey === selected[0].rateConditionKey) === -1) {
+      setSelected([]);
+    }
+  }
+
+
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = arr.map((n) => n.targetType);
+      const newSelecteds = data.map((n) => n);
       setSelected(newSelecteds);
       return;
     }
@@ -292,11 +268,11 @@ export default function EnhancedTable(props: EnhancedTableProp) {
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected: string[] = [];
-
+    const selectedIndex = selected.findIndex(v => v.rateConditionKey === name);
+    const dataIndex = data.findIndex(v => v.rateConditionKey === name);
+    let newSelected: Data[] = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, data[dataIndex]);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -311,96 +287,187 @@ export default function EnhancedTable(props: EnhancedTableProp) {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  // const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const isSelected = (name: string) => selected.findIndex(v => v.rateConditionKey === name) !== -1;
 
 
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const onChangeValue = (e: any) => {
+    const target = e.target.name.split('_');
+    const index = data.findIndex(v => v.rateConditionKey === target[0]);
+    setNow(e.target.value);
+    setNowFocus(e.target.name);
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, arr.length - page * rowsPerPage);
+    switch (target[1]) {
+      case 'targetType':
+        data[index].targetType = e.target.value;
+        break;
+      case 'loanLocationType':
+        data[index].loanLocationType = e.target.value;
+        break;
+      case 'loanPeriodMin':
+        data[index].loanPeriodMin = e.target.value;
+        break;
+      case 'loanPeriodMax':
+        data[index].loanPeriodMax = e.target.value;
+        break;
+      case 'loanSizeMin':
+        data[index].loanSizeMin = e.target.value;
+        break;
+      case 'loanSizeMax':
+        data[index].loanSizeMax = e.target.value;
+        break;
+      case 'standard':
+        data[index].standard = e.target.value;
+        break;
+      case 'preferred':
+        data[index].preferred = e.target.value;
+        break;
+      case 'priority':
+        data[index].priority = e.target.value;
+        break;
+      case 'top_priority':
+        data[index].top_priority = e.target.value;
+        break;
+    }
+    props.setData(data);
+  }
+  const isFocus = (key: string) => {
+    return nowFocus !== key
+  }
+  const addButtonClick = () => {
+    props.register([]);
+  }
 
   return (
       <div className={classes.root}>
-        <Paper className={classes.paper}>
-          <EnhancedTableToolbar numSelected={selected.length}/>
-          <TableContainer>
-            <Table
-                className={classes.table}
-                aria-labelledby="tableTitle"
-                size={'small'}
-                aria-label="enhanced table"
-            >
-              <EnhancedTableHead
-                  classes={classes}
-                  numSelected={selected.length}
-                  order={order}
-                  orderBy={orderBy}
-                  onSelectAllClick={handleSelectAllClick}
-                  onRequestSort={handleRequestSort}
-                  rowCount={arr.length}
-              />
-              <TableBody>
-                {stableSort(arr, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.rateConditionKey);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
-                  return (
-                      <TableRow
-                          hover
-                          onClick={(event) => handleClick(event, row.rateConditionKey)}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={row.rateConditionKey}
-                          selected={isItemSelected}
+        <EnhancedTableToolbar numSelected={selected} setData={props.setData} data={data}
+                              register={props.register} remove={props.remove}/>
+        <TableContainer>
+          <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              size={'small'}
+              aria-label="enhanced table"
+          >
+            <EnhancedTableHead
+                classes={classes}
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={data.length}
+            />
+            <TableBody>
+              {stableSort(data, getComparator(order, orderBy))
+              .map((row, index) => {
+                const isItemSelected = isSelected(row.rateConditionKey);
+                const labelId = `enhanced-table-checkbox-${index}`;
+                const idx = data.findIndex(v => v.rateConditionKey === row.rateConditionKey)
+                return (
+                    <TableRow
+                        hover
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.rateConditionKey}
+                        selected={isItemSelected}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                            checked={isItemSelected}
+                            inputProps={{'aria-labelledby': labelId}}
+                            onClick={(event) => handleClick(event, row.rateConditionKey)}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Select
+                            sx={{
+                              width: 100,
+                              height: 30,
+                            }}
+                            value={data[idx].targetType}
+                            onChange={onChangeValue}
+                            name={`${row.rateConditionKey}_targetType`}
+                        >
+                          <MenuItem key={'STOCK'} value={'STOCK'}> 주식 </MenuItem>
+                          <MenuItem key={'FUND'} value={'FUND'}> 펀드 </MenuItem>
+                          <MenuItem key={'BOND3'} value={'BOND'}> 채권 </MenuItem>
+                        </Select>
+                      </TableCell>
+                      <TableCell align="right"> <Select
+                          sx={{
+                            width: 150,
+                            height: 30,
+                          }}
+                          onChange={onChangeValue}
+                          value={data[idx].loanLocationType}
+                          name={`${row.rateConditionKey}_loanLocationType`}
                       >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                              checked={isItemSelected}
-                              inputProps={{'aria-labelledby': labelId}}
-                          />
-                        </TableCell>
-                        <TableCell component="th" id={labelId} scope="row" padding="none">
-                          {row.targetType}
-                        </TableCell>
-                        <TableCell align="right">{row.loanLocationType}</TableCell>
-                        <TableCell align="right">{row.loanPeriodMin}</TableCell>
-                        <TableCell align="right">{row.loanPeriodMax}</TableCell>
-                        <TableCell align="right">{row.loanSizeMin}</TableCell>
-                        <TableCell align="right">{row.loanSizeMax}</TableCell>
-                        <TableCell align="right">{row.standard}</TableCell>
-                        <TableCell align="right">{row.preferred}</TableCell>
-                        <TableCell align="right">{row.priority}</TableCell>
-                        <TableCell align="right">{row.top_priority}</TableCell>
-                      </TableRow>
-                  );
-                })}
-                {emptyRows > 0 && (
-                    <TableRow style={{height: (33) * emptyRows}}>
-                      <TableCell colSpan={6}/>
+                        <MenuItem key={'OFFICE'} value={'OFFICE'}> 지점 </MenuItem>
+                        <MenuItem key={'ONLINE'} value={'ONLINE'}> 온라인 </MenuItem>
+                        <MenuItem key={'ALL'} value={'ALL'}> 상관 없음 </MenuItem>
+                      </Select></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_loanPeriodMin') ? now : data[idx].loanPeriodMin}
+                                   name={`${row.rateConditionKey}_loanPeriodMin`}
+                                   onChange={onChangeValue}/>
+                      </TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 150}}
+                                   value={!isFocus(row.rateConditionKey + '_loanPeriodMax') ? now : data[idx].loanPeriodMax}
+                                   name={`${row.rateConditionKey}_loanPeriodMax`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_loanSizeMin') ? now : data[idx].loanSizeMin}
+                                   name={`${row.rateConditionKey}_loanSizeMin`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 100}}
+                                   value={!isFocus(row.rateConditionKey + '_loanSizeMax') ? now : data[idx].loanSizeMax}
+                                   name={`${row.rateConditionKey}_loanSizeMax`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_standard') ? now : data[idx].standard}
+                                   inputProps={{step: "0.01"}}
+                                   name={`${row.rateConditionKey}_standard`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_preferred') ? now : data[idx].preferred}
+                                   inputProps={{step: "0.01"}}
+                                   name={`${row.rateConditionKey}_preferred`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_priority') ? now : data[idx].priority}
+                                   inputProps={{step: "0.01"}}
+                                   name={`${row.rateConditionKey}_priority`}
+                                   onChange={onChangeValue}/></TableCell>
+                      <TableCell align="right">
+                        <TextField type="number" style={{width: 50}}
+                                   value={!isFocus(row.rateConditionKey + '_top_priority') ? now : data[idx].top_priority}
+                                   inputProps={{step: "0.01"}}
+                                   name={`${row.rateConditionKey}_top_priority`}
+                                   onChange={onChangeValue}/></TableCell>
                     </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={arr.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
+                );
+              })}
+              <TableRow>
+                <TableCell colSpan={12} align="center">
+                  <IconButton aria-label="add" onClick={addButtonClick}>
+                    <AddIcon/>
+                  </IconButton>
+                </TableCell>
+
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
 
       </div>
   );

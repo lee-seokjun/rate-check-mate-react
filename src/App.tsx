@@ -10,7 +10,7 @@ function App() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isInit, setInit] = useState(false);
 
-  async function getCompany() { // async, await을 사용하는 경우
+  async function getCompany() {
     try {
       if (!isInit) {
         const response = await axios.get('http://localhost:8080/company');
@@ -33,8 +33,8 @@ function App() {
           </header>
           <Routes>
             <Route path={"/"} element={
-                companies&&
-              <AdminPage companies={companies}/>
+                companies &&
+                <AdminPage companies={companies}/>
             }/>
             <Route path={"/test1"} element={<Button variant={"contained"}>test1</Button>}/>
             {/*<Route path={"/test2"} element={<AdminPage/>}/>*/}
