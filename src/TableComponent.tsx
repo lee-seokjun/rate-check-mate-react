@@ -18,7 +18,8 @@ import AddIcon from '@mui/icons-material/Add';
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from '@material-ui/core/TextField';
-
+import CheckIcon from '@mui/icons-material/Check';
+import {pink} from "@mui/material/colors";
 export interface Data {
   rateConditionKey: string;
   targetType: string;
@@ -30,7 +31,7 @@ export interface Data {
   standard: number;
   preferred: number;
   priority: number;
-  top_priority: number;
+  topPriority: number;
 }
 
 
@@ -82,7 +83,7 @@ const headCells: HeadCell[] = [
   {id: 'standard', numeric: true, disablePadding: false, label: 'STANDARD'},
   {id: 'preferred', numeric: true, disablePadding: false, label: 'PREFERRED'},
   {id: 'priority', numeric: true, disablePadding: false, label: 'PRIORITY'},
-  {id: 'top_priority', numeric: true, disablePadding: false, label: 'TOP_PRIORITY'},
+  {id: 'topPriority', numeric: true, disablePadding: false, label: 'TOP_PRIORITY'},
 ];
 
 interface EnhancedTableProps {
@@ -170,7 +171,7 @@ interface EnhancedTableToolbarProps {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   const classes = useToolbarStyles();
-  const {numSelected, data, setData} = props;
+  const {numSelected} = props;
   const deleteButton = () => {
     numSelected.forEach(numSelected => props.remove(numSelected.rateConditionKey));
   }
@@ -188,7 +189,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
               <Tooltip title="Delete">
 
                 <IconButton aria-label="delete" onClick={deleteButton}>
-                  <DeleteIcon/>
+                  <DeleteIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="copy">
@@ -235,6 +236,7 @@ interface EnhancedTableProp {
   register: (value: Data[]) => void;
   remove: (value: string) => void;
   companyId: string;
+  update : (value: Data[]) => void;
 }
 
 export default function EnhancedTable(props: EnhancedTableProp) {
@@ -326,8 +328,8 @@ export default function EnhancedTable(props: EnhancedTableProp) {
       case 'priority':
         data[index].priority = e.target.value;
         break;
-      case 'top_priority':
-        data[index].top_priority = e.target.value;
+      case 'topPriority':
+        data[index].topPriority = e.target.value;
         break;
     }
     props.setData(data);
@@ -337,6 +339,9 @@ export default function EnhancedTable(props: EnhancedTableProp) {
   }
   const addButtonClick = () => {
     props.register([]);
+  }
+  const updateClick = () => {
+    props.update(data);
   }
 
   return (
@@ -450,9 +455,9 @@ export default function EnhancedTable(props: EnhancedTableProp) {
                                    onChange={onChangeValue}/></TableCell>
                       <TableCell align="right">
                         <TextField type="number" style={{width: 50}}
-                                   value={!isFocus(row.rateConditionKey + '_top_priority') ? now : data[idx].top_priority}
+                                   value={!isFocus(row.rateConditionKey + '_topPriority') ? now : data[idx].topPriority}
                                    inputProps={{step: "0.01"}}
-                                   name={`${row.rateConditionKey}_top_priority`}
+                                   name={`${row.rateConditionKey}_topPriority`}
                                    onChange={onChangeValue}/></TableCell>
                     </TableRow>
                 );
@@ -460,7 +465,15 @@ export default function EnhancedTable(props: EnhancedTableProp) {
               <TableRow>
                 <TableCell colSpan={12} align="center">
                   <IconButton aria-label="add" onClick={addButtonClick}>
-                    <AddIcon/>
+                    <AddIcon  sx={{ color: pink[500] }}/>
+                  </IconButton>
+                </TableCell>
+
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={12} align="center">
+                  <IconButton aria-label="add" onClick={updateClick}>
+                    <CheckIcon color={'success'}/>
                   </IconButton>
                 </TableCell>
 

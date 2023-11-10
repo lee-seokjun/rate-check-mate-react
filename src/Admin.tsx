@@ -17,7 +17,7 @@ function createData(
     standard: number,
     preferred: number,
     priority: number,
-    top_priority: number,
+    topPriority: number,
 ): Data {
   return {
     rateConditionKey,
@@ -30,7 +30,7 @@ function createData(
     standard,
     preferred,
     priority,
-    top_priority
+    topPriority
   };
 }
 
@@ -89,7 +89,7 @@ function AdminPage(props: AdminPageProps) {
                 {"grade": "STANDARD", "rate": d.standard},
                 {"grade": "PREFERRED", "rate": d.preferred},
                 {"grade": "PRIORITY", "rate": d.priority},
-                {"grade": "TOP_PRIORITY", "rate": d.top_priority},
+                {"grade": "TOP_PRIORITY", "rate": d.topPriority},
 
               ]
             }
@@ -135,7 +135,55 @@ function AdminPage(props: AdminPageProps) {
       console.error(e);
     }
   }
+  async function update(dataArray: Data[]) { // async, await을 사용하는 경우
+    try {
+      // GET 요청은 params에 실어 보냄
+      console.log(dataArray)
+      if(dataArray.length === 0) {
+        return;
+      }
+      const registerArr: any[] = [];
+      dataArray.forEach(d => {
+        registerArr.push(
+            {
+              "conditionKey": d.rateConditionKey,
+              "targetType": d.targetType,
+              "loanLocationType": d.loanLocationType,
+              "loanPeriod": {
+                "minDay": d.loanPeriodMin,
+                "maxDay": d.loanPeriodMax
+              },
+              "loanSize": {
+                "minSize": d.loanSizeMin,
+                "maxSize": d.loanSizeMax
+              },
+              "rates": [
+                {"grade": "STANDARD", "rate": d.standard},
+                {"grade": "PREFERRED", "rate": d.preferred},
+                {"grade": "PRIORITY", "rate": d.priority},
+                {"grade": "TOP_PRIORITY", "rate": d.topPriority},
 
+              ]
+            }
+        )
+      })
+
+      let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: 'http://localhost:8080/condition',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: registerArr
+      };
+      await axios.request(config).then(() => getConditionByCompany(selectedCompany));
+
+    } catch (e) {
+      // 실패 시 처리
+      console.error(e);
+    }
+  }
   async function remove(key: string) {
     try {
 
@@ -180,7 +228,7 @@ function AdminPage(props: AdminPageProps) {
             }
           </Select>
           <br/>
-          {val && <EnhancedTable data={val} setData={setVal} register={register} remove={remove}
+          {val && <EnhancedTable data={val} setData={setVal} register= {register} remove= {remove} update = {update}
                                  companyId={selectedCompany}/>}
         </div>
 
