@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import './App.css';
-import axios from "axios";
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Company from './App';
 import EnhancedTable, {Data} from "./TableComponent";
+import instance from "./AxiosModule";
 
 function createData(
     rateConditionKey: string,
@@ -41,7 +41,7 @@ function AdminPage(props: AdminPageProps) {
   async function getConditionByCompany(id: string) { // async, await을 사용하는 경우
     try {
       // GET 요청은 params에 실어 보냄
-      const response = await axios.get('http://localhost:8080/condition/company/' + id);
+      const response = await instance.get('/condition/company/' + id);
       const conditions: Condition[] = response.data
       const initArr: Data[] = [];
       conditions.forEach(con => {
@@ -122,13 +122,13 @@ function AdminPage(props: AdminPageProps) {
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:8080/condition',
+        url: '/condition',
         headers: {
           'Content-Type': 'application/json'
         },
         data: registerArr
       };
-      await axios.request(config).then(() => getConditionByCompany(selectedCompany));
+      await instance.request(config).then(() => getConditionByCompany(selectedCompany));
 
     } catch (e) {
       // 실패 시 처리
@@ -138,7 +138,6 @@ function AdminPage(props: AdminPageProps) {
   async function update(dataArray: Data[]) { // async, await을 사용하는 경우
     try {
       // GET 요청은 params에 실어 보냄
-      console.log(dataArray)
       if(dataArray.length === 0) {
         return;
       }
@@ -171,13 +170,13 @@ function AdminPage(props: AdminPageProps) {
       let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'http://localhost:8080/condition',
+        url: '/condition',
         headers: {
           'Content-Type': 'application/json'
         },
         data: registerArr
       };
-      await axios.request(config).then(() => getConditionByCompany(selectedCompany));
+      await instance.request(config).then(() => getConditionByCompany(selectedCompany));
 
     } catch (e) {
       // 실패 시 처리
@@ -190,10 +189,9 @@ function AdminPage(props: AdminPageProps) {
       let config = {
         method: 'delete',
         maxBodyLength: Infinity,
-        url: 'http://localhost:8080/condition/' + key,
-        headers: {}
+        url: '/condition/' + key
       };
-      await axios.request(config).then(() => getConditionByCompany(selectedCompany));
+      await instance.request(config).then(() => getConditionByCompany(selectedCompany));
 
     } catch (e) {
       // 실패 시 처리

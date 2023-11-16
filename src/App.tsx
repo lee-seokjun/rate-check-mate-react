@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import './App.css';
 import {BrowserRouter, Routes} from 'react-router-dom';
 import {Route} from 'react-router';
-import {Button} from "@mui/material";
-import axios from "axios";
 import AdminPage from './Admin';
+import CustomerPage from "./Customer";
+import instance from "./AxiosModule";
 
 function App() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -13,7 +13,7 @@ function App() {
   async function getCompany() {
     try {
       if (!isInit) {
-        const response = await axios.get('http://localhost:8080/company');
+        const response = await instance.get('/company');
         setCompanies(response.data);
         setInit(true);
       }
@@ -36,7 +36,7 @@ function App() {
                 companies &&
                 <AdminPage companies={companies}/>
             }/>
-            <Route path={"/test1"} element={<Button variant={"contained"}>test1</Button>}/>
+            <Route path={"/customer"} element={<CustomerPage/>}/>
             {/*<Route path={"/test2"} element={<AdminPage/>}/>*/}
           </Routes>
 

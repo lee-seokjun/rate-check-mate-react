@@ -297,6 +297,9 @@ export default function EnhancedTable(props: EnhancedTableProp) {
   const onChangeValue = (e: any) => {
     const target = e.target.name.split('_');
     const index = data.findIndex(v => v.rateConditionKey === target[0]);
+    if(e.target.value > 999999999999999) {
+      return;
+    }
     setNow(e.target.value);
     setNowFocus(e.target.name);
 
