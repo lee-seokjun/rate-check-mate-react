@@ -16,28 +16,34 @@ function SearchComponent(props: SearchProp) {
 
 
   return (
-      <Stack spacing={1} sx={{width: 300}}>
-        <Autocomplete
-            {...defaultProps}
-            id="disable-close-on-select"
-            disableCloseOnSelect
-            renderInput={(params) => (
-                <TextField {...params} label="항목 입력" variant="standard"/>
-            )}
-            value={selectedValue}
-            onChange={(event: any, newValue: Collateral | null) => {
-              setValue(newValue);
-            }}
-        />
-      </Stack>
+      <div>
+        <Stack spacing={1} sx={{width: 400}}
+               alignSelf={"center"}
+               textAlign={"center"}
+               alignContent={"center"}>
+          <Autocomplete
+              {...defaultProps}
+              id="disable-close-on-select"
+              disableCloseOnSelect
+              renderInput={(params) => (
+                  <TextField {...params} label="항목 입력" variant="standard"/>
+              )}
+              value={selectedValue}
+              onChange={(event: any, newValue: Collateral | null) => {
+                setValue(newValue);
+              }}
 
+          />
+
+        </Stack>
+      </div>
   );
 }
 
 interface SearchProp {
   values: Collateral[];
   selectedValue: Collateral | null;
-  setValue  : (value: Collateral | null ) => void;
+  setValue: (value: Collateral | null) => void;
 }
 
 

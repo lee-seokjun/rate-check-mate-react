@@ -2,69 +2,76 @@ import React, {useState} from 'react';
 import './App.css';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import SearchComponent from "./SearchComponent";
-import instance from "./AxiosModule";
+import Box from '@mui/material/Box';
+import {Stack} from '@mui/material';
+import TextField from '@material-ui/core/TextField';
+import RateCalculator from "./RateCalculator";
 
 
 function CustomerPage() {
-  const [selectedType, setSelectedType] = useState('');
-  const [values, setValues] = useState<Collateral[]>([]);
-  const [value, setValue] = React.useState<Collateral | null>( null);
-  async function getConditionByCompany(type :string) { // async, await을 사용하는 경우
-    try {
-      // GET 요청은 params에 실어 보냄
-      const response = await instance.get('/collateral?targetType=' + type);
-      setValues(response.data);
-    } catch (e) {
-      // 실패 시 처리
-    }
-  }
-  const changeTarget = (target : Collateral | null) => {
+  const [selectedLocation, setSelectedLocation] = useState('ALL');
+  const [value, setValue] = React.useState<Collateral | null>(null);
+  const [maxLoan, setMaxLoan] = React.useState(0);
+
+  const changeTarget = (target: Collateral | null) => {
     setValue(target);
   }
-  const changeType = (event : any) => {
-    setSelectedType(event.target.value);
-    getConditionByCompany(event.target.value);
-    setValue(null);
+
+  const changeLocation = (event: any) => {
+    setSelectedLocation(event.target.value);
   }
-
   return (
-      <div className="App">
+      <div style={{width: '100%'}}>
         <header>
+          <Stack
+              direction="column"
+              justifyContent="flex-end"
+              alignItems="center"
+              spacing={2}
+              width={"100%"}
+              marginTop={5}
+          >
+            <RateCalculator selectedValue={value}
+                            setValue={changeTarget}
+                            maxLoan={maxLoan}
+                            setMaxLoan={setMaxLoan}
 
+            />
+            {maxLoan !== 0 &&
+                <Box>Step2 금리 비교하기
+                  <Stack spacing={1} sx={{width: 400}}>
+                    <TextField style={{width: '380'}} label={"대출 금액"}/>
+                    <TextField style={{width: '100%'}} label={"대출 기간"}/>
+                    <Select
+                        sx={{
+                          width: 400,
+                          height: 50,
+                        }}
+                        value={selectedLocation}
+                        onChange={changeLocation}
+                    >
+                      <MenuItem key={'ALL'}
+                                value={'ALL'}
+                      >지점, 모바일</MenuItem>
+                      <MenuItem key={'OFFICE'}
+                                value={'OFFICE'}
+                      >지점</MenuItem>
+                      <MenuItem key={'MOBILE'}
+                                value={'MOBILE'}
+                      >모바일</MenuItem>
+                    </Select>
+                  </Stack>
+                </Box>}
 
+          </Stack>
         </header>
-        <body>
-        <Select
-            sx={{
-              width: 200,
-              height: 50,
-            }}
-            value={selectedType}
-            onChange={changeType}
-        >
-
-          <MenuItem key={'STOCK'}
-                    value={'STOCK'}
-          >주식</MenuItem>
-          <MenuItem key={'BOND'}
-                    value={'BOND'}
-          >채권</MenuItem>
-          <MenuItem key={'FUND'}
-                    value={'FUND'}
-          >펀드</MenuItem>
-
-        </Select>
-        {selectedType !== '' && <SearchComponent values={values} selectedValue = {value} setValue={changeTarget}/>}
-        </body>
       </div>
-  )
-      ;
+  );
 }
 
 
 export interface Collateral {
-  collateralKey : string;
+  collateralKey: string;
   companyKey: string;
   targetType: string;
   targetName: string;
