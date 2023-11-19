@@ -17,7 +17,7 @@ function SearchComponent(props: SearchProp) {
 
   return (
       <div>
-        <Stack spacing={1} sx={{width: 400}}
+        <Stack spacing={1} sx={{width: 350}}
                alignSelf={"center"}
                textAlign={"center"}
                alignContent={"center"}>

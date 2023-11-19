@@ -68,6 +68,7 @@ function RateCalculator(props: CalculatorProp) {
     setPrice(0);
     setBondCnt(0);
     props.setMaxLoan(0);
+    props.reset();
   }
   const changeCnt = (event: any) => {
     setCnt(event.target.value);
@@ -110,7 +111,7 @@ function RateCalculator(props: CalculatorProp) {
         <Box>
           <Select
               sx={{
-                width: 400,
+                width: 350,
                 height: 50,
               }}
               value={selectedType}
@@ -130,7 +131,7 @@ function RateCalculator(props: CalculatorProp) {
         </Box>
         <Box>
           <div style={{width: '100%'}}>
-            {selectedType !== '' &&
+            {selectedType !== '' && values.length > 0 && selectedType === values[0].targetType &&
                 <SearchComponent values={values} selectedValue={props.selectedValue}
                                  setValue={changeTarget}/>}
           </div>
@@ -138,7 +139,7 @@ function RateCalculator(props: CalculatorProp) {
         {selectedType === 'BOND' ?
             <Box>
               <TextField sx={{
-                width: 400,
+                width: 350,
                 height: 50,
                 marginTop: 5
               }} label={"채"} type="number" name={'bondCnt'} value={bondCnt}
@@ -147,7 +148,7 @@ function RateCalculator(props: CalculatorProp) {
             : <div>
               <Box>
                 <TextField sx={{
-                  width: 400,
+                  width: 350,
                   height: 50,
                   marginTop: 5
                 }} label={"전일 종가"} type="number" name={'price'} value={price}
@@ -155,7 +156,7 @@ function RateCalculator(props: CalculatorProp) {
               </Box>
               <Box>
                 <TextField sx={{
-                  width: 400,
+                  width: 350,
                   height: 50,
                   marginTop: 5
                 }}
@@ -176,6 +177,7 @@ interface CalculatorProp {
   setValue: (value: Collateral | null) => void;
   maxLoan: number;
   setMaxLoan: (value: number) => void;
+  reset : () => void;
 }
 interface CalculateParam {
   cnt : number;
