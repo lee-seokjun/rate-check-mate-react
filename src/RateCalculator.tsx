@@ -1,20 +1,15 @@
 import React, {useState} from 'react';
 import './App.css';
-import TextField from '@mui/material/TextField';
-import Stack from '@mui/material/Stack';
 import {Collateral} from "./Customer";
-import Box from "@mui/material/Box";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import SearchComponent from "./SearchComponent";
 import instance from "./AxiosModule";
-
+import {TextField, Stack, MenuItem, Select, Box} from "@mui/material";
 
 function RateCalculator(props: CalculatorProp) {
   function createCalculateParam(
-      cnt : number,
-      price : number,
-      bondCnt : number
+      cnt: number,
+      price: number,
+      bondCnt: number
   ): CalculateParam {
     return {
       cnt,
@@ -22,12 +17,12 @@ function RateCalculator(props: CalculatorProp) {
       bondCnt,
     };
   }
+
   const [selectedType, setSelectedType] = useState('STOCK');
   const [cnt, setCnt] = useState(0);
   const [price, setPrice] = useState(0);
   const [bondCnt, setBondCnt] = useState(0);
   const [values, setValues] = useState<Collateral[]>([]);
-
   if (values.length === 0) {
     getConditionByCompany(selectedType);
   }
@@ -41,18 +36,19 @@ function RateCalculator(props: CalculatorProp) {
       // 실패 시 처리
     }
   }
-  async function calculate(params : CalculateParam) { // async, await을 사용하는 경우
+
+  async function calculate(params: CalculateParam) { // async, await을 사용하는 경우
     const param = `collateralKey=${props.selectedValue?.collateralKey}&cnt=${params.cnt}&price=${params.price}&bondCnt=${params.bondCnt}`;
     try {
       // GET 요청은 params에 실어 보냄
-
       const response = await instance.get('/collateral/calculate?' + param);
-      props.setMaxLoan(response.data);
+      props.setMaxLoan(response.data.toFixed(2));
     } catch (e) {
       alert('계산 중 에러 발생 관리자에게 문의해 주세요 \n ' + param)
       // 실패 시 처리
     }
   }
+
   const changeTarget = (target: Collateral | null) => {
     props.setValue(target);
     reset();
@@ -90,7 +86,7 @@ function RateCalculator(props: CalculatorProp) {
 
   const changeBondCnt = (event: any) => {
     setBondCnt(event.target.value);
-    if (event.target.value <= 0 && props.selectedValue !== null) {
+    if (event.target.value <= 0 || props.selectedValue === null) {
       props.setMaxLoan(0);
     } else {
       calculate(createCalculateParam(cnt, price, event.target.value));
@@ -103,17 +99,17 @@ function RateCalculator(props: CalculatorProp) {
           direction="column"
           justifyContent="flex-end"
           alignItems="center"
-          spacing={2}
+          spacing={1}
           width={"100%"}
-          marginTop={5}
       >
         <Box>Step1 최대 금액 계산하기</Box>
         <Box>
           <Select
               sx={{
                 width: 350,
-                height: 50,
+                height: 40,
               }}
+              name={'selectedType'}
               value={selectedType}
               onChange={changeType}
           >
@@ -136,12 +132,11 @@ function RateCalculator(props: CalculatorProp) {
                                  setValue={changeTarget}/>}
           </div>
         </Box>
-        {selectedType === 'BOND' ?
+        {props.selectedValue === null ? <></> : selectedType === 'BOND' ?
             <Box>
               <TextField sx={{
                 width: 350,
-                height: 50,
-                marginTop: 5
+                marginTop: 2
               }} label={"채"} type="number" name={'bondCnt'} value={bondCnt}
                          onChange={changeBondCnt}/>
             </Box>
@@ -149,8 +144,7 @@ function RateCalculator(props: CalculatorProp) {
               <Box>
                 <TextField sx={{
                   width: 350,
-                  height: 50,
-                  marginTop: 5
+                  marginTop: 2
                 }} label={"전일 종가"} type="number" name={'price'} value={price}
                            onChange={changePrice}/>
               </Box>
@@ -158,18 +152,20 @@ function RateCalculator(props: CalculatorProp) {
                 <TextField sx={{
                   width: 350,
                   height: 50,
-                  marginTop: 5
+                  marginTop: 2
                 }}
                            type="number"
                            label={"보유 주 수"} name={'cnt'} value={cnt} onChange={changeCnt}/>
               </Box>
             </div>
         }
-
-        <Box>고객님의 최대 대출 가능 금액은 {props.maxLoan} 만원 입니다.</Box>
+        {props.maxLoan !== 0 &&
+            <Box style={{marginTop: 20}}> 고객님의 최대 대출 가능 금액은 {props.maxLoan} 만원 입니다.</Box>}
+        <br/>
       </Stack>
 
-  );
+  )
+      ;
 }
 
 interface CalculatorProp {
@@ -177,12 +173,13 @@ interface CalculatorProp {
   setValue: (value: Collateral | null) => void;
   maxLoan: number;
   setMaxLoan: (value: number) => void;
-  reset : () => void;
+  reset: () => void;
 }
+
 interface CalculateParam {
-  cnt : number;
-  price : number;
-  bondCnt : number;
+  cnt: number;
+  price: number;
+  bondCnt: number;
 }
 
 

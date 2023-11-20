@@ -1,21 +1,31 @@
 import React, {useState} from 'react';
 import './App.css';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Box from '@mui/material/Box';
-import {Stack} from '@mui/material';
-import TextField from '@material-ui/core/TextField';
+import {
+  Select,
+  MenuItem,
+  Box,
+  Button,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField, styled
+} from '@mui/material';
 import RateCalculator from "./RateCalculator";
-import {Button} from "@material-ui/core";
 import SearchIcon from '@mui/icons-material/Search';
 import instance from "./AxiosModule";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+
+const UpBox = styled(Paper)(({theme}) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
 
 function CustomerPage() {
   const [selectedLocation, setSelectedLocation] = useState('ALL');
@@ -29,9 +39,7 @@ function CustomerPage() {
     try {
       if (value != null) {
         const response = await instance.get(`/condition?size=${loanSize}&day=${loanDay}&targetCode=${value.code}&loanLocationType=${selectedLocation}`);
-        console.log(response);
         setSearchList(response.data);
-        console.log(searchList);
       }
     } catch (e) {
       // 실패 시 처리
@@ -51,7 +59,7 @@ function CustomerPage() {
     setSelectedLocation(event.target.value);
   }
   const changeLoanSize = (event: any) => {
-    if (event.target.value > maxLoan) {
+    if (event.target.value > Number( maxLoan)) {
       return;
     }
     setLoanSize(event.target.value);
@@ -74,24 +82,30 @@ function CustomerPage() {
             width={"100%"}
             marginTop={5}
         >
-          <RateCalculator selectedValue={value}
-                          setValue={changeTarget}
-                          maxLoan={maxLoan}
-                          setMaxLoan={setMaxLoan}
-                          reset ={reset}
+          <UpBox>
+            <Box><RateCalculator selectedValue={value}
+                                 setValue={changeTarget}
+                                 maxLoan={maxLoan}
+                                 setMaxLoan={setMaxLoan}
+                                 reset={reset}
 
-          />
-          {maxLoan !== 0 && <>
+            /></Box>
+          </UpBox>
+          {maxLoan !== 0 && <UpBox style={{marginTop: 50}}>
             <Box>Step2 금리 비교하기
-              <Stack spacing={1} sx={{width: 350}}>
-                <TextField type={"number"} style={{width: '380'}} label={"대출 금액"}
+              <Stack spacing={2} sx={{width: 350}}>
+                <TextField type={"number"} sx={{
+                  width: 350,
+                }} label={"대출 금액"}
                            value={loanSize} onChange={changeLoanSize}/>
-                <TextField type={"number"} style={{width: '100%'}} label={"대출 기간 (일) "}
+                <TextField type={"number"} sx={{
+                  width: 350,
+                }} label={"대출 기간 (일) "}
                            value={loanDay} onChange={changeLoanDay}/>
                 <Select
                     sx={{
                       width: 350,
-                      height: 50,
+                      height: 40,
                     }}
                     value={selectedLocation}
                     onChange={changeLocation}
@@ -110,16 +124,14 @@ function CustomerPage() {
               <Button
                   style={{
                     width: 350,
-                    height: 50,
                     marginTop: 10
                   }}
                   color={'inherit'} variant={'outlined'}
                   onClick={search}>
                 조회하기 <SearchIcon/></Button>
-
             </Box>
             <Box>
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} style={{marginTop: 50}}>
                 <Table sx={{width: 350}} size="small" aria-label="a dense table">
                   <TableHead>
                     <TableRow sx={{width: 350}}>
@@ -148,7 +160,8 @@ function CustomerPage() {
               </TableContainer>
 
             </Box>
-          </>}
+            <br/>
+          </UpBox>}
 
         </Stack>
 
@@ -173,12 +186,9 @@ interface ResponseRateConditionList {
 
 export interface Collateral {
   collateralKey: string;
-  companyKey: string;
   targetType: string;
   targetName: string;
   code: string;
-  substitutePrice: string;
-  marginRequirement: string;
 }
 
 export default CustomerPage;
