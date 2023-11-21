@@ -260,7 +260,7 @@ interface RateByGrade {
   rate: number
 }
 
-interface GradeType {
+export interface GradeType {
   STANDARD: number,
   PREFERRED: number,
   PRIORITY: number,
