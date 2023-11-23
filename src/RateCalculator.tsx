@@ -24,6 +24,7 @@ function RateCalculator(props: CalculatorProp) {
   const [bondCnt, setBondCnt] = useState(0);
 
   const searchRef = useRef<searchReset | null>(null);
+
   async function calculate(params: CalculateParam) { // async, await을 사용하는 경우
     const param = `collateralKey=${props.selectedValue?.collateralKey}&cnt=${params.cnt}&price=${params.price}&bondCnt=${params.bondCnt}`;
     try {
@@ -118,7 +119,7 @@ function RateCalculator(props: CalculatorProp) {
                 <SearchComponent type={selectedType}
                                  selectedValue={props.selectedValue}
                                  setValue={changeTarget}
-                                 // values={values} setValues={setValues}
+                    // values={values} setValues={setValues}
                                  ref={(ref: searchReset | null) => (searchRef.current = ref)}/>}
           </div>
         </Box>

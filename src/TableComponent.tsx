@@ -20,6 +20,7 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from '@material-ui/core/TextField';
 import CheckIcon from '@mui/icons-material/Check';
 import {pink} from "@mui/material/colors";
+
 export interface Data {
   rateConditionKey: string;
   targetType: string;
@@ -189,7 +190,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
               <Tooltip title="Delete">
 
                 <IconButton aria-label="delete" onClick={deleteButton}>
-                  <DeleteIcon />
+                  <DeleteIcon/>
                 </IconButton>
               </Tooltip>
               <Tooltip title="copy">
@@ -236,7 +237,7 @@ interface EnhancedTableProp {
   register: (value: Data[]) => void;
   remove: (value: string) => void;
   companyId: string;
-  update : (value: Data[]) => void;
+  update: (value: Data[]) => void;
 }
 
 export default function EnhancedTable(props: EnhancedTableProp) {
@@ -297,7 +298,7 @@ export default function EnhancedTable(props: EnhancedTableProp) {
   const onChangeValue = (e: any) => {
     const target = e.target.name.split('_');
     const index = data.findIndex(v => v.rateConditionKey === target[0]);
-    if(e.target.value > 999999999999999) {
+    if (e.target.value > 999999999999999) {
       return;
     }
     setNow(e.target.value);
@@ -468,7 +469,7 @@ export default function EnhancedTable(props: EnhancedTableProp) {
               <TableRow>
                 <TableCell colSpan={12} align="center">
                   <IconButton aria-label="add" onClick={addButtonClick}>
-                    <AddIcon  sx={{ color: pink[500] }}/>
+                    <AddIcon sx={{color: pink[500]}}/>
                   </IconButton>
                 </TableCell>
 
