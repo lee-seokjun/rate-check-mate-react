@@ -1,19 +1,49 @@
-import React from 'react';
+import React, {useImperativeHandle, useState} from 'react';
 import './App.css';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Stack from '@mui/material/Stack';
 import {Collateral} from "./Customer";
+import instance from "./AxiosModule";
 
 
-function SearchComponent(props: SearchProp) {
-  const {selectedValue, setValue} = props;
+const SearchComponent = React.forwardRef((props: SearchProp, ref) => {
+  const {selectedValue, setValue, type} = props;
+  const [values, setValues] = useState<Collateral[]>([]);
   const defaultProps = {
-    options: props.values
+    options: values
     ,
     getOptionLabel: (option: Collateral) => option.targetName,
   };
+  const reset = () => {
+    setValues([]);
+  }
+  useImperativeHandle(ref, () => ({
+    reset
+  }));
+  const removeOnlyConsonantsOrVowels = (text: string) => {
+    // 정규식 패턴: 자음 또는 모음
+    const pattern = /[ㄱ-ㅎㅏ-ㅣ]/g;
+    // 문자열에서 자음 또는 모음만 있는 부분을 제거
+    const result = text.replace(pattern, '');
+    return result;
+  }
+  const onChange = (e: any) => {
+    const search = removeOnlyConsonantsOrVowels(e.target.value);
+    if (search.length > 0) {
+      searchCollateral(search);
+    }
+  }
 
+  async function searchCollateral(search: string) { // async, await을 사용하는 경우
+    try {
+      // GET 요청은 params에 실어 보냄
+      const response = await instance.get(`/collateral?targetType=${type}&search=${search}`);
+      setValues(response.data);
+    } catch (e) {
+      // 실패 시 처리
+    }
+  }
 
   return (
       <div>
@@ -26,7 +56,8 @@ function SearchComponent(props: SearchProp) {
               id="disable-close-on-select"
               disableCloseOnSelect
               renderInput={(params) => (
-                  <TextField {...params} label="항목 입력" variant="standard"/>
+                  <TextField {...params} label="검색할 항목을 입력해 주세요." variant="standard"
+                             onChange={onChange}/>
               )}
               value={selectedValue}
               onChange={(event: any, newValue: Collateral | null) => {
@@ -38,13 +69,18 @@ function SearchComponent(props: SearchProp) {
         </Stack>
       </div>
   );
-}
+});
 
 interface SearchProp {
-  values: Collateral[];
+  type: string;
   selectedValue: Collateral | null;
   setValue: (value: Collateral | null) => void;
+  // values: Collateral[];
+  // setValues: (value: Collateral[] | []) => void;
 }
 
+export interface searchReset {
+  reset: () => void;
+}
 
 export default SearchComponent;

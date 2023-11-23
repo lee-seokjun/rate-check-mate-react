@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import './App.css';
 import {Collateral} from "./Customer";
-import SearchComponent from "./SearchComponent";
+import SearchComponent, {searchReset} from "./SearchComponent";
 import instance from "./AxiosModule";
 import {TextField, Stack, MenuItem, Select, Box} from "@mui/material";
 
@@ -22,21 +22,8 @@ function RateCalculator(props: CalculatorProp) {
   const [cnt, setCnt] = useState(0);
   const [price, setPrice] = useState(0);
   const [bondCnt, setBondCnt] = useState(0);
-  const [values, setValues] = useState<Collateral[]>([]);
-  if (values.length === 0) {
-    getConditionByCompany(selectedType);
-  }
 
-  async function getConditionByCompany(type: string) { // async, await을 사용하는 경우
-    try {
-      // GET 요청은 params에 실어 보냄
-      const response = await instance.get('/collateral?targetType=' + type);
-      setValues(response.data);
-    } catch (e) {
-      // 실패 시 처리
-    }
-  }
-
+  const searchRef = useRef<searchReset | null>(null);
   async function calculate(params: CalculateParam) { // async, await을 사용하는 경우
     const param = `collateralKey=${props.selectedValue?.collateralKey}&cnt=${params.cnt}&price=${params.price}&bondCnt=${params.bondCnt}`;
     try {
@@ -56,7 +43,7 @@ function RateCalculator(props: CalculatorProp) {
   const changeType = (event: any) => {
     reset();
     setSelectedType(event.target.value);
-    getConditionByCompany(event.target.value);
+    searchRef.current?.reset();
     props.setValue(null);
   }
   const reset = () => {
@@ -127,9 +114,12 @@ function RateCalculator(props: CalculatorProp) {
         </Box>
         <Box>
           <div style={{width: '100%'}}>
-            {selectedType !== '' && values.length > 0 && selectedType === values[0].targetType &&
-                <SearchComponent values={values} selectedValue={props.selectedValue}
-                                 setValue={changeTarget}/>}
+            {selectedType !== '' &&
+                <SearchComponent type={selectedType}
+                                 selectedValue={props.selectedValue}
+                                 setValue={changeTarget}
+                                 // values={values} setValues={setValues}
+                                 ref={(ref: searchReset | null) => (searchRef.current = ref)}/>}
           </div>
         </Box>
         {props.selectedValue === null ? <></> : selectedType === 'BOND' ?
