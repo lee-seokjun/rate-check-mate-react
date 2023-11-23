@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import './App.css';
+import '../../App.css';
 import {
   Select,
   MenuItem,
@@ -17,8 +17,8 @@ import {
 } from '@mui/material';
 import RateCalculator from "./RateCalculator";
 import SearchIcon from '@mui/icons-material/Search';
-import instance from "./AxiosModule";
-import {GradeType} from './Admin';
+import instance from "../config/AxiosModule";
+import {GradeType} from '../admin/Admin';
 
 const UpBox = styled(Paper)(({theme}) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -28,11 +28,6 @@ const UpBox = styled(Paper)(({theme}) => ({
   color: theme.palette.text.secondary,
 }));
 
-interface moreInfo {
-  companyName: string;
-  loanLocationType: string;
-  rates: GradeType[];
-}
 
 function CustomerPage() {
   const [selectedLocation, setSelectedLocation] = useState('ALL');
@@ -110,11 +105,7 @@ function CustomerPage() {
   const handleClose = () => setOpen(false);
 
   return (
-      <div style={{width: '100%'}}>
-        <header>
-
-        </header>
-        <body>
+      <div>
         <Stack
             direction="column"
             justifyContent="flex-end"
@@ -205,33 +196,25 @@ function CustomerPage() {
 
         </Stack>
 
-
-        <div>
-
-          <Modal
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {modalTitle}
-              </Typography>
-              <Typography id="modal-modal-description" sx={{mt: 2}}>
-                등급에 따라 다를 수 있음.
-                {modalGrade?.STANDARD !== 0 && <div>일반 : {modalGrade?.STANDARD} </div>}
-                {modalGrade?.PREFERRED !== 0 && <div>준우대 : {modalGrade?.PREFERRED} </div>}
-                {modalGrade?.PRIORITY !== 0 && <div>우대 : {modalGrade?.PRIORITY} </div>}
-                {modalGrade?.TOP_PRIORITY !== 0 && <div>최고우대 : {modalGrade?.TOP_PRIORITY} </div>}
-
-              </Typography>
-            </Box>
-          </Modal>
-        </div>
-
-
-        </body>
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              {modalTitle}
+            </Typography>
+            <div id="modal-modal-description">
+              <p>금리는 등급에 따라 다를 수 있습니다.</p>
+              {modalGrade?.STANDARD !== 0 && <p>일반 : {modalGrade?.STANDARD} </p>}
+              {modalGrade?.PREFERRED !== 0 && <p>준우대 : {modalGrade?.PREFERRED} </p>}
+              {modalGrade?.PRIORITY !== 0 && <p>우대 : {modalGrade?.PRIORITY} </p>}
+              {modalGrade?.TOP_PRIORITY !== 0 && <p>최고우대 : {modalGrade?.TOP_PRIORITY} </p>}
+            </div>
+          </Box>
+        </Modal>
       </div>
   );
 }

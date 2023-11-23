@@ -1,10 +1,10 @@
 import React, {useImperativeHandle, useState} from 'react';
-import './App.css';
+import '../../App.css';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Stack from '@mui/material/Stack';
 import {Collateral} from "./Customer";
-import instance from "./AxiosModule";
+import instance from "../config/AxiosModule";
 
 
 const SearchComponent = React.forwardRef((props: SearchProp, ref) => {
@@ -75,8 +75,6 @@ interface SearchProp {
   type: string;
   selectedValue: Collateral | null;
   setValue: (value: Collateral | null) => void;
-  // values: Collateral[];
-  // setValues: (value: Collateral[] | []) => void;
 }
 
 export interface searchReset {

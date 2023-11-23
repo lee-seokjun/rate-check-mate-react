@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import './App.css';
+import '../../App.css';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Company from './App';
+import Company from '../../App';
 import EnhancedTable, {Data} from "./TableComponent";
-import instance from "./AxiosModule";
+import instance from "../config/AxiosModule";
 
 function createData(
     rateConditionKey: string,
@@ -34,9 +34,26 @@ function createData(
   };
 }
 
-function AdminPage(props: AdminPageProps) {
+function AdminPage() {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [val, setVal] = useState<Data[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isInit, setInit] = useState(false);
+
+  async function getCompany() {
+    try {
+      if (!isInit) {
+        const response = await instance.get('/company');
+        setCompanies(response.data);
+        setInit(true);
+      }
+    } catch (e) {
+      // 실패 시 처리
+      console.error(e);
+    }
+  }
+
+  getCompany();
 
   async function getConditionByCompany(id: string) { // async, await을 사용하는 경우
     try {
@@ -135,10 +152,11 @@ function AdminPage(props: AdminPageProps) {
       console.error(e);
     }
   }
+
   async function update(dataArray: Data[]) { // async, await을 사용하는 경우
     try {
       // GET 요청은 params에 실어 보냄
-      if(dataArray.length === 0) {
+      if (dataArray.length === 0) {
         return;
       }
       const registerArr: any[] = [];
@@ -183,6 +201,7 @@ function AdminPage(props: AdminPageProps) {
       console.error(e);
     }
   }
+
   async function remove(key: string) {
     try {
 
@@ -219,14 +238,15 @@ function AdminPage(props: AdminPageProps) {
               onChange={changeCompany}
           >
             {
-              props.companies.map((com) => (
+              companies.map((com) => (
                   <MenuItem key={com.securitiesCompanyKey}
                             value={com.securitiesCompanyKey || ''}
                   >{com.companyName}</MenuItem>))
             }
           </Select>
           <br/>
-          {val && <EnhancedTable data={val} setData={setVal} register= {register} remove= {remove} update = {update}
+          {val && <EnhancedTable data={val} setData={setVal} register={register} remove={remove}
+                                 update={update}
                                  companyId={selectedCompany}/>}
         </div>
 
@@ -267,9 +287,5 @@ export interface GradeType {
   TOP_PRIORITY: number
 }
 
-interface AdminPageProps {
-  companies: Company[]
-
-}
 
 export default AdminPage;

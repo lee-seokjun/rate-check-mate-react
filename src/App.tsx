@@ -1,30 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import './App.css';
 import {BrowserRouter, Routes} from 'react-router-dom';
 import {Route} from 'react-router';
-import AdminPage from './Admin';
-import CustomerPage from "./Customer";
-import instance from "./AxiosModule";
+import AdminPage from './pages/admin/Admin';
+import CustomerPage from "./pages/customer/Customer";
 
 function App() {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [isInit, setInit] = useState(false);
 
-  async function getCompany() {
-    try {
-      if (!isInit) {
-        const response = await instance.get('/company');
-        setCompanies(response.data);
-        setInit(true);
-      }
-
-    } catch (e) {
-      // 실패 시 처리
-      console.error(e);
-    }
-  }
-
-  getCompany();
 
   return (
       <BrowserRouter>
@@ -32,12 +14,10 @@ function App() {
           <header>
           </header>
           <Routes>
-            <Route path={"/"} element={
-                companies &&
-                <AdminPage companies={companies}/>
+            <Route path={"/admin/rateCondition"} element={
+              <AdminPage/>
             }/>
             <Route path={"/customer"} element={<CustomerPage/>}/>
-            {/*<Route path={"/test2"} element={<AdminPage/>}/>*/}
           </Routes>
 
         </div>
@@ -45,11 +25,5 @@ function App() {
   );
 }
 
-interface Company {
-  securitiesCompanyKey: string,
-  companyName: string,
-  availableKey: string
-
-}
 
 export default App;

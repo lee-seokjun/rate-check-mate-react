@@ -1,8 +1,8 @@
 import React, {useRef, useState} from 'react';
-import './App.css';
+import '../../App.css';
 import {Collateral} from "./Customer";
 import SearchComponent, {searchReset} from "./SearchComponent";
-import instance from "./AxiosModule";
+import instance from "../config/AxiosModule";
 import {TextField, Stack, MenuItem, Select, Box} from "@mui/material";
 
 function RateCalculator(props: CalculatorProp) {
