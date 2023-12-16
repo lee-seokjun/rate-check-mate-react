@@ -129,10 +129,32 @@ function CustomerPage() {
                   width: 350,
                 }} label={"대출 금액"}
                            value={loanSize} onChange={changeLoanSize}/>
-                <TextField type={"number"} sx={{
-                  width: 350,
-                }} label={"대출 기간 (일) "}
-                           value={loanDay} onChange={changeLoanDay}/>
+                {/*<TextField type={"number"} sx={{*/}
+                {/*  width: 350,*/}
+                {/*}} label={"대출 기간 (일) "}*/}
+                {/*           value={loanDay} onChange={changeLoanDay}/>*/}
+                <label>대출 기간 선택</label>
+                <Select
+                    sx={{
+                      width: 350,
+                      height: 40,
+                    }}
+                    value={loanDay}
+                    onChange={changeLoanDay}
+                >
+                  <MenuItem key={'MONTH'}
+                            value={'30'}
+                  >1개월</MenuItem>
+                  <MenuItem key={'THREE_MONTH'}
+                            value={'61'}
+                  >3개월</MenuItem>
+                  <MenuItem key={'SIX_MONTH'}
+                            value={'183'}
+                  >6개월</MenuItem>
+                  <MenuItem key={'YEAR'}
+                            value={'365'}
+                  >1년</MenuItem>
+                </Select>
                 <Select
                     sx={{
                       width: 350,
