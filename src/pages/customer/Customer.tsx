@@ -34,7 +34,7 @@ function CustomerPage() {
   const [value, setValue] = React.useState<Collateral | null>(null);
   const [maxLoan, setMaxLoan] = React.useState(0);
   const [loanSize, setLoanSize] = React.useState(0);
-  const [loanDay, setLoanDay] = React.useState(0);
+  const [loanDay, setLoanDay] = React.useState(30);
   const [searchList, setSearchList] = React.useState<ResponseRateCondition[]>([]);
   const [modalTitle, setModalStr] = React.useState('');
   const [modalGrade, setModalGrade] = React.useState<GradeType>();
@@ -72,7 +72,7 @@ function CustomerPage() {
   const reset = () => {
     setMaxLoan(0);
     setLoanSize(0);
-    setLoanDay(0);
+    setLoanDay(30);
     setSearchList([]);
   }
   const changeLocation = (event: any) => {
@@ -127,7 +127,7 @@ function CustomerPage() {
               <Stack spacing={2} sx={{width: 350}}>
                 <TextField type={"number"} sx={{
                   width: 350,
-                }} label={"대출 금액"}
+                }} label={"대출 금액 (만원)"}
                            value={loanSize} onChange={changeLoanSize}/>
                 {/*<TextField type={"number"} sx={{*/}
                 {/*  width: 350,*/}
