@@ -57,7 +57,11 @@ function RateCalculator(props: CalculatorProp) {
   const changeCnt = (event: any) => {
     setCnt(event.target.value);
     if (event.target.value <= 0 || price <= 0 || props.selectedValue === null) {
-      props.setMaxLoan(0);
+      if(event.target.value >= 0 && selectedType === 'STOCK') {
+        calculate(createCalculateParam(event.target.value,0, bondCnt));
+      } else {
+        props.setMaxLoan(0);
+      }
     } else {
       calculate(createCalculateParam(event.target.value, price, bondCnt));
     }
@@ -123,7 +127,8 @@ function RateCalculator(props: CalculatorProp) {
                                  ref={(ref: searchReset | null) => (searchRef.current = ref)}/>}
           </div>
         </Box>
-        {props.selectedValue === null ? <></> : selectedType === 'BOND' ?
+        {props.selectedValue === null ? <></> : <>
+          {selectedType === 'BOND' &&
             <Box>
               <TextField sx={{
                 width: 350,
@@ -131,14 +136,8 @@ function RateCalculator(props: CalculatorProp) {
               }} label={"채"} type="number" name={'bondCnt'} value={bondCnt}
                          onChange={changeBondCnt}/>
             </Box>
-            : <div>
-              <Box>
-                <TextField sx={{
-                  width: 350,
-                  marginTop: 2
-                }} label={"전일 종가"} type="number" name={'price'} value={price}
-                           onChange={changePrice}/>
-              </Box>
+          }
+          {selectedType === 'STOCK' &&
               <Box>
                 <TextField sx={{
                   width: 350,
@@ -148,7 +147,28 @@ function RateCalculator(props: CalculatorProp) {
                            type="number"
                            label={"보유 주 수"} name={'cnt'} value={cnt} onChange={changeCnt}/>
               </Box>
-            </div>
+          }
+          {selectedType === 'FUND' &&
+              <div>
+                <Box>
+                  <TextField sx={{
+                    width: 350,
+                    marginTop: 2
+                  }} label={"전일 종가"} type="number" name={'price'} value={price}
+                             onChange={changePrice}/>
+                </Box>
+                <Box>
+                  <TextField sx={{
+                    width: 350,
+                    height: 50,
+                    marginTop: 2
+                  }}
+                             type="number"
+                             label={"보유 펀드 수"} name={'cnt'} value={cnt} onChange={changeCnt}/>
+                </Box>
+              </div>
+          }
+            </>
         }
         {props.maxLoan !== 0 &&
             <Box style={{marginTop: 20}}> 고객님의 최대 대출 가능 금액은 {props.maxLoan} 만원 입니다.</Box>}
