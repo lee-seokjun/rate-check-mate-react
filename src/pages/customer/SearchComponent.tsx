@@ -1,4 +1,4 @@
-import React, {useImperativeHandle, useState} from 'react';
+import React, {useEffect, useImperativeHandle, useState} from 'react';
 import '../../App.css';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -15,12 +15,23 @@ const SearchComponent = React.forwardRef((props: SearchProp, ref) => {
     ,
     getOptionLabel: (option: Collateral) => option.targetName,
   };
+
+  useEffect(() => {
+    if (values.length == 0) {
+      searchCollateral('')
+      .then(r => setValues(r))
+    }
+
+  }, [type])
+
   const reset = () => {
     setValues([]);
   }
+
   useImperativeHandle(ref, () => ({
     reset
   }));
+
   const removeOnlyConsonantsOrVowels = (text: string) => {
     // 정규식 패턴: 자음 또는 모음
     const pattern = /[ㄱ-ㅎㅏ-ㅣ]/g;
@@ -30,16 +41,16 @@ const SearchComponent = React.forwardRef((props: SearchProp, ref) => {
   }
   const onChange = (e: any) => {
     const search = removeOnlyConsonantsOrVowels(e.target.value);
-    if (search.length > 0) {
-      searchCollateral(search);
-    }
+    searchCollateral(search)
+    .then(r => setValues(r));
   }
 
   async function searchCollateral(search: string) { // async, await을 사용하는 경우
     try {
       // GET 요청은 params에 실어 보냄
       const response = await instance.get(`/collateral?targetType=${type}&search=${search}`);
-      setValues(response.data);
+      return response.data;
+      // setValues(response.data);
     } catch (e) {
       // 실패 시 처리
     }
